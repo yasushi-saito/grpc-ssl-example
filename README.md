@@ -24,7 +24,7 @@ First compile and run Go client + server:
 then compile and run the C++ client, while go server is still running.
 
     cd cppclient
-    bazel build
+    bazel build --incompatible_require_linker_input_cc_api=false ...
     ../bazel-bin/cppclient/client
 
 ## Tricky parts

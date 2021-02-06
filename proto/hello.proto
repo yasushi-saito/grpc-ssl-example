@@ -4,8 +4,15 @@ package hello;
 option go_package = "main";
 
 service HelloService {
-  rpc Hello(HelloRequest) returns (HelloReply){}
+  rpc Hello(HelloRequest) returns (HelloReply) {}
 }
 
-message HelloRequest { string message=1;}
-message HelloReply { string message=1;}
+message HelloRequest {
+  string message = 1;
+  int32 value = 2;
+}
+
+message HelloReply {
+  string message = 1;
+  int32 value = 2;
+}

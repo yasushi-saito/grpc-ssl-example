@@ -13,7 +13,7 @@ proto_library(
 go_proto_library(
     visibility = ["//visibility:public"],
     name = "hello_go_proto",
-    compiler = "@io_bazel_rules_go//proto:go_grpc",
+    compilers = ["@io_bazel_rules_go//proto:go_grpc"],
     importpath = "yasushi-saito/grpcsslexample",
     proto = ":hello_proto",
 )

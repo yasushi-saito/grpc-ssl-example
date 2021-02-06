@@ -18,6 +18,7 @@ import (
 	"math/big"
 	"net"
 	"os"
+	"strings"
 	"time"
 
 	"google.golang.org/grpc"
@@ -123,8 +124,14 @@ func newClientCert(rootCA *x509.Certificate) (certPEM, keyPEM []byte) {
 type helloServer struct{}
 
 func (s *helloServer) Hello(ctx context.Context, req *HelloRequest) (*HelloReply, error) {
-	log.Printf("Got request: %+v", req)
-	return &HelloReply{Message: "Hello reply"}, nil
+	log.Printf("server: hello request: %+v", req)
+	var buf strings.Builder
+	buf.WriteString("error:")
+	for i := 0; i < int(req.Value); i++ {
+		buf.WriteRune('x')
+	}
+	return nil, fmt.Errorf(buf.String())
+	// return &HelloReply{Message: "Hello reply"}, nil
 }
 
 func RunServer(rootCAPEM, rootKeyPEM []byte) {
@@ -139,7 +146,7 @@ func RunServer(rootCAPEM, rootKeyPEM []byte) {
 	if err != nil {
 		log.Fatalf("listen %s: %v", *flagAddr, err)
 	}
-	log.Printf("Listening on %s", *flagAddr)
+	log.Printf("server: listening on %s", *flagAddr)
 	if err := s.Serve(l); err != nil {
 		log.Fatalf("serve %s: %v", *flagAddr, err)
 	}
@@ -166,14 +173,13 @@ func RunClient(clientCertPEM, clientKeyPEM, rootCAPEM []byte) {
 	}
 	defer conn.Close()
 	c := NewHelloServiceClient(conn)
-	for {
-		resp, err := c.Hello(ctx, &HelloRequest{Message: "hello"})
+	for i := 0; i < 1024; i++ {
+		resp, err := c.Hello(ctx, &HelloRequest{Message: "hello", Value: int32(i*128)})
 		if err != nil {
-			log.Printf("could not greet: %v", err)
-			time.Sleep(time.Second * 1)
+			log.Printf("client: could not greet: %v", err)
 			continue
 		}
-		log.Printf("Done: %+v", resp)
+		log.Printf("client: done: %+v", resp)
 		break
 	}
 }
